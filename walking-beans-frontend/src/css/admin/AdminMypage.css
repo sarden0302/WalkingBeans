@@ -1,0 +1,115 @@
+/* 공통 요소 */
+.profile-section {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 30px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 3px solid currentColor;
+}
+
+.profile-userName p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+}
+
+/* 사용자 정보 */
+.mypage-info {
+    text-align: left;
+    padding: 0 16px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.mypage-info p {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+}
+
+.menu-links div,
+.mypage-end-menu-links div {
+    text-align: center;
+    cursor: pointer;
+}
+
+.mypage-text-big {
+    font-size: 28px;
+    font-weight: bold;
+    color: #5A3D21;
+}
+
+.mypage-text {
+    font-size: 20px;
+    color: #5A3D21;
+}
+
+.mypage-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mypage-item {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.mypage-title-center {
+    font-size: 32px;
+    font-weight: bold;
+    color: #5A3D21;
+    text-align: center;
+    letter-spacing: -1.9px;
+}
+
+.mypage-item-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #5A3D21;
+}
+
+.mypage-hr {
+    border: none;
+    border-top: 2px #5A3D21 solid;
+    margin: 30px 0;
+}
+
+.mypage-hr-mini {
+    border: none;
+    border-top: 2px #D7BEA2 solid;
+    margin: 20px 0;
+}
+
+.mypage-container .rider {
+    color: #010C22;
+}
+
+.mypage-container .user-order-background .rider {
+    background: #E2F2FA;
+}
+
+.mypage-container.rider .mypage-btn {
+    background: #010C22;
+}
+
+.mypage-container.rider .mypage-hr {
+    border-top: 2px #010C22 solid;
+}
+
+.mypage-container.rider .mypage-hr-mini {
+    border-top: 2px #99D6F0 solid;
+}

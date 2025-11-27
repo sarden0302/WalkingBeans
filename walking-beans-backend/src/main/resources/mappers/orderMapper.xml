@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="walking_beans.walking_beans_backend.mapper.OrderMapper">
+    <!-- **************************************** LEO **************************************** -->
+    <!-- 주문 정보 가져오기 by orderId -->
+    <select id="getOrderByOrderId">
+        SELECT *
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- untaken 된 주문들 조회 -->
+    <select id="getOrdersByNullOfRiderIdInDuty">
+        SELECT *
+        FROM orders
+        WHERE rider_id_on_duty IS NULL
+    </select>
+
+    <!-- rider_id_on_duty 로 주문 내역들 가져오기-->
+    <select id="getOrdersByRiderIdOnDuty">
+        SELECT order_id,
+               user_id,
+               store_id,
+               address_id,
+               order_number,
+               order_status,
+               order_requests,
+               order_total_price,
+               DATE_FORMAT(order_create_date, '%Y-%m-%d %W %p %h:%i')   AS order_create_date,
+               DATE_FORMAT(order_modified_date, '%Y-%m-%d %W %p %h:%i') AS order_modified_date,
+               rider_id_on_duty
+        FROM orders
+        WHERE rider_id_on_duty = #{riderIdOnDuty}
+        ORDER BY order_status, order_modified_date DESC
+    </select>
+
+    <!-- 주문 상태 변경 -->
+    <update id="updateOrderStatus">
+        UPDATE orders
+        SET order_status = #{orderStatus}
+        WHERE order_id = #{orderId}
+    </update>
+
+    <!-- 라이더가 take 시 다른 라이더들이 가져가지 못하도록 설정 변경 -->
+    <update id="updateRiderIdOnDutyOfOrders">
+        UPDATE orders
+        SET rider_id_on_duty = #{riderId}
+        WHERE order_id = #{orderId}
+    </update>
+
+    <select id="getOrderStatusWithRemainingTime">
+        SELECT O.order_status, O.order_modified_date, S.store_max_delivery_time
+        FROM orders O
+                 INNER JOIN stores S
+                            on O.store_id = S.store_id
+        WHERE O.order_id = #{orderId}
+    </select>
+
+    <select id="getOwnerIdByOrderId">
+        SELECT S.user_id
+        FROM orders O
+                 JOIN stores S
+                      ON O.store_id = S.store_id
+        WHERE O.order_id = #{orderId}
+    </select>
+
+    <select id="checkingRiderIdOnDuty">
+        SELECT EXISTS (
+            SELECT 1
+            FROM orders
+            WHERE order_id = #{orderId} AND rider_id_on_duty = #{riderIdOnDuty}
+        ) AS result
+    </select>
+
+    <!-- ****************************************  **************************************** -->
+
+
+    <insert id="createOrder" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO orders (user_id, store_id, address_id, order_number, order_status, order_requests, order_total_price,
+                            order_create_date, order_modified_date)
+        VALUES (#{userId}, #{storeId}, #{addressId}, #{orderNumber}, 2, #{orderRequests}, #{orderTotalPrice}, NOW(),
+                NOW());
+    </insert>
+
+    <insert id="insertOrderItem">
+        INSERT INTO order_items (order_number, menu_id, option_ids, quantity)
+        VALUES (#{orderNumber}, #{menuId}, #{optionIds}, #{quantity});
+    </insert>
+
+    <!-- 주문정보 가져오기 -->
+    <select id="findOrderById">
+        SELECT *
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 주문자 정보 가져오기 -->
+    <select id="findOrdersByUserId">
+        SELECT user_id, store_id, address_id, order_number, order_status, order_requests, order_total_price
+        FROM orders
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 주문내역, 주문상세 내역 : 주문한 가게 정보 가져오기 -->
+    <select id="findStoreByOrderId">
+        SELECT s.store_id,
+               s.store_name,
+               s.store_picture_url,
+               s.store_main_menu,
+               s.store_address,
+               s.store_latitude,
+               s.store_longitude
+        FROM stores s
+        WHERE s.store_id = (SELECT o.store_id
+                            FROM orders o
+                            WHERE o.order_id = #{orderId})
+    </select>
+
+    <!-- 주문내역 : 오더 정보 가져오기 -->
+    <select id="getOrderStatus">
+        SELECT DATE_FORMAT(order_create_date, '%Y-%m-%d %W %p %h:%i') AS order_create_date,
+               order_status,
+               order_total_price,
+               order_Requests
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 유저의 기존 주문 내역리스트들 -->
+    <select id="getOrdersByUserId">
+        SELECT user_id,
+               order_id,
+               customer_name,
+               store_name,
+               order_date,
+               order_number,
+               delivery_address,
+               total_payment,
+               order_requests,
+               order_list,
+               quantity,
+               order_status,
+               store_logo,
+               store_id
+        FROM user_orders_view
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 주문 내역 조회 -->
+    <select id="getOrderByOrderNumber">
+        SELECT order_id,
+               user_id,
+               customer_name,
+               store_name,
+               order_date,
+               order_number,
+               delivery_address,
+               detailed_address,
+               total_payment,
+               order_requests,
+               order_list,
+               quantity,
+               order_status
+        FROM user_orders_view
+        WHERE order_number = #{orderNumber}
+    </select>
+
+    <!--store 확인용-->
+    <!-- 가게 id로 주문번호, 주문상태만 가져오기 storeOrder -->
+    <select id="getLatestOrderForStore">
+        SELECT order_number, order_status, order_id, order_create_date, order_modified_date
+        FROM orders
+        WHERE store_id = #{storeId}
+        ORDER BY order_modified_date DESC
+    </select>
+    <!-- 주문리스트 클릭시 주문정보 로딩용-->
+    <select id="getOrderForStore">
+        SELECT order_id,
+               user_id,
+               customer_name,
+               store_name,
+               order_date,
+               order_number,
+               order_status,
+               delivery_address,
+               detailed_address,
+               total_payment,
+               order_requests,
+               order_list,
+               quantity
+        FROM user_orders_view
+        WHERE order_number = #{orderNumber}
+    </select>
+
+    <!-- 주문 상태 변경 -->
+    <update id="storeUpdateOrderStatus">
+        UPDATE orders
+        SET order_status = #{orderStatus}
+        WHERE order_number = #{orderNumber}
+    </update>
+
+
+
+
+    <!-- 주문 번호로 상세 정보 조회-->
+    <select id="getOrderDetailsByOrderNumber">
+        SELECT * FROM order_detail_view
+        WHERE order_number = #{orderNumber}
+    </select>
+
+    <!-- 주문 삭제 -->
+    <delete id="deleteOrderById">
+        DELETE FROM orders
+        WHERE order_id = #{orderId}
+          AND order_status = 6
+    </delete>
+
+</mapper>

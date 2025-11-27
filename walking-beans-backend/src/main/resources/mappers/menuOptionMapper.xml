@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="walking_beans.walking_beans_backend.mapper.MenuOptionMapper">
+
+    <!--메뉴옵션 전체 검색-->
+    <select id="findAllMenuOption">
+        SELECT *
+        FROM menuoption
+    </select>
+
+    <!--메뉴옵션 검색 , 매장에 등록된 옵션 보기-->
+    <select id="searchMenuOption">
+        SELECT *
+        FROM menuoption o
+                 JOIN menu m
+                      ON o.menuId = m.menuId
+        WHERE store_id = #{storeId}
+
+    </select>
+
+    <!-- ID 로 메뉴 찾기-->
+    <select id="findMenuOptionById">
+        SELECT *
+        FROM menuoption
+        WHERE menu_id =#{menuId}
+    </select>
+
+
+    <!-- 메뉴에 속한 메뉴옵션 찾기, 메뉴에서 옵션보기-->
+    <select id="findMenuOptionByMenuId">
+        SELECT *
+        FROM menuoption
+        WHERE menu_id =#{menuId}
+        ORDER BY option_content ASC;
+    </select>
+
+
+    <!--메뉴옵션 수정하기-->
+    <update id="updateMenuOption">
+        UPDATE Menu
+        SET (
+                menu_price = #{menuPrice},
+                menu_picture_url = #{menuPictureUrl},
+                menu_name = #{menuName},
+                menu_category = #{menuCategory},
+                menu_description = #{menuDescription},
+                menu_modified_date = NOW())
+        WHERE menu_id = #{menuId}
+    </update>
+
+    <!--메뉴옵션 추가하기 1개씩만
+     NSERT INTO MenuOption (
+                                option_id,
+                                menu_id,
+                                option_name,
+                                option_content,
+                                option_price,
+                                option_create_date,
+                                option_modified_date)
+        VALUES
+            (
+             #{optionId},
+             #{menuId},
+             #{optionName},
+             #{optionContent},
+             #{optionPrice},
+             NOW(),
+             NOW()
+            )
+
+     -->
+    <!--여러개 동시 insert item명과 변수명 앞에 붙는 명칭이 동일해야함.-->
+    <insert id="addMenuOption" parameterType="java.util.List">
+        INSERT INTO MenuOption
+        (
+        menu_id,
+        option_name,
+        option_content,
+        option_price,
+        option_create_date,
+        option_modified_date
+        )
+        VALUES
+            <foreach collection="list" item="menuOptions" separator=",">
+            (
+
+            #{menuOptions.menuId},
+            #{menuOptions.optionName},
+            #{menuOptions.optionContent},
+            #{menuOptions.optionPrice},
+             NOW(),
+             NOW()
+            )
+            </foreach>
+    </insert>
+
+    <!--메뉴옵션 삭제하기 , 조건 optionId-->
+    <delete id="deleteMenuOption">
+        DELETE
+        FROM menuoption
+        WHERE option_id =#{optionId}
+    </delete>
+
+    <!-- 장바구니에 등록할 메뉴, 메뉴옵션 가져오기 -->
+    <select id="selectMenuInfoToCart">
+        SELECT mo.option_id,
+               mo.option_name,
+               mo.option_content,
+               mo.option_price,
+               m.menu_id,
+               m.menu_price,
+               m.menu_name
+        FROM menuoption mo
+        JOIN menu m ON mo.menu_id = m.menu_id
+        WHERE mo.option_id = #{optionId}
+    </select>
+
+    <!-- 사용자가 선택한 옵션 확인하기 옵션명이 유니크한 경우-->
+    <select id="selectOptionByMenuIdAndName" resultType="Integer">
+        SELECT option_id
+        FROM menuOption
+        WHERE menu_id = #{menuId} AND option_name = #{optionName}
+    </select>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="walking_beans.walking_beans_backend.mapper.MessageMapper">
+    <!-- roomId 에 따른 message list 로 가져오기 -->
+    <select id="getAllMessages">
+        SELECT *
+        FROM message
+        WHERE room_id = #{roomId}
+    </select>
+
+    <select id="getAllUserMessage">
+        SELECT M.message_id, M.room_id, M.user_id, M.message_role, M.message_content, M.message_time, U.user_name, U.user_picture_url
+        FROM message M
+                 JOIN users U
+                      on M.user_id = U.user_id
+        WHERE room_id = #{roomId}
+    </select>
+
+    <!--  -->
+    <insert id="insertMessageByRoomId">
+        INSERT INTO message(room_id, user_id, message_role, message_content, message_time)
+        VALUES (#{roomId}, #{userId}, #{messageRole}, #{messageContent}, NOW())
+    </insert>
+</mapper>

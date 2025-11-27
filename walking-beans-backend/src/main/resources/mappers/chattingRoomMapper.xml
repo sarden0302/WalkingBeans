@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="walking_beans.walking_beans_backend.mapper.ChattingRoomMapper">
+    <!-- 유저아이디, 찾는 user role relation 에 따라 목록들 보여주기 -->
+    <select id="getAllChattingRoomByReceiverRelation">
+        SELECT CR.room_id, CR.order_id, CR.last_message
+        FROM chattingroom CR
+        JOIN chattingmember CM
+        ON CR.room_id = CM.room_id
+        WHERE CM.user_id = #{userId}
+        AND CM.receiver_relation  = #{receiverRelation}
+    </select>
+
+    <select id="getUserChattingRoomByUserId">
+        WITH RankedMessages AS (
+            SELECT
+                CR.room_id,
+                CR.order_id,
+                M.message_content,
+                M.message_time,
+                U.user_name,
+                U.user_picture_url,
+                ROW_NUMBER() OVER (PARTITION BY CR.room_id ORDER BY M.message_time DESC) AS rn
+            FROM chattingroom CR
+                     INNER JOIN message M
+                                ON CR.room_id = M.room_id
+                     INNER JOIN chattingmember CM
+                                ON CR.room_id = CM.room_id
+                     INNER JOIN users U
+                                ON U.user_id = CM.room_receiver_id
+            WHERE CM.user_id = #{userId}
+              AND CM.receiver_relation = #{receiverRelation}
+        )
+        SELECT room_id, order_id, message_content, message_time, user_name, user_picture_url
+        FROM RankedMessages
+        WHERE rn = 1;
+    </select>
+
+    <select id="getRoomIdByOrderId">
+        SELECT room_id
+        FROM chattingroom
+        WHERE order_id = #{orderId}
+        ORDER BY room_id DESC LIMIT 1
+    </select>
+
+    <!-- 채팅창 메세지 입력 될 때 마지막 메세지 update -->
+    <update id="updateLastMessageOfChattingRoom">
+        UPDATE chattingroom
+        SET last_message = #{lastMessage}
+        WHERE room_id = #{roomId}
+    </update>
+
+    <!-- orderId 에 대한 새로운 chattingroom 만들기 -->
+    <insert id="insertChattingroomByOrderId">
+        INSERT INTO chattingroom (order_id, last_message)
+        VALUES (#{orderId}, null)
+    </insert>
+</mapper>
