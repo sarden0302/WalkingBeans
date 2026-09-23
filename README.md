@@ -93,49 +93,49 @@ walkingBeans (계층형 구조)
 │   │   │										└──	MessageMapper
 │   │   │       ├── service
 │   │   │										├──	UserService
-|		|		|																			└──UserService
+|		|		|											    └──UserService
 │   │   │										├──	OrderService
-|		|		|																			└── OrderService
+|		|		|													└── OrderService
 │   │   │										├──	MenuService
-|		|		|																			└── MenuService
+|		|		|													└── MenuService
 │   │   │										├──	CartService
-|   |   |                                     └── CartService
+|   |   |                         └── CartService
 │   │   │										├──	MapService
-|		|		|																			└── MapService
+|		|		|													└── MapService
 │   │   │										├──	NavigationService
-|		|		|																			└── NavigationService
+|		|		|													└── NavigationService
 │   │   │										├──	SocialLoginService
-|		|		|																			└── SocialLoginService
+|		|		|													└── SocialLoginService
 │   │   │										├──	PaymentService
-|		|		|																			└── PaymentService
+|		|		|													└── PaymentService
 │   │   │										├──	DeiliveryIncomeService
-|		|		|																			└── DeiliveryIncomeService
+|		|		|													└── DeiliveryIncomeService
 │   │   │										├──	ChattingRoomService
-|		|		|																			└── ChattingRoomService
+|		|		|												 └── ChattingRoomService
 │   │   │										├──	ReviewService
-|		|		|																			└── ReviewService
+|		|		|													└── ReviewService
 │   │   │										├──	AlarmService
-|		|		|																			└── AlarmService
+|		|		|													└── AlarmService
 │   │   │										└── AddressService
-|		|		|																			└── AddressService
+|		|		|													└── AddressService
 │   │   │
 │   │   │       └── WalkingBeansApplication
 │   │   ├── resources
 │   │       ├── mappers
-│   │  									├──	userMapper
-│   │   								├── riderReviewMapper
-│   │  									├──	deliveryIncome
-│   │ 									├──	orderMapper
-│   │   								├──	storeMapper
-│   │  									├── cartMapper
-│   │  						    	├──	menuMapper
-│   │  									├── menuOptionMapper
-│   │  									├──	reviewMapper
-│   │  									├──	addressMapper
-│   │  									├── paymentMapper
-│   │  									├── alarmMapper
-│   │  									├── chattigroomMapper
-│   │  									└── messageMapper
+│   │  					├──	userMapper
+│   │   				├── riderReviewMapper
+│   │  					├──	deliveryIncome
+│   │ 					├──	orderMapper
+│   │   				├──	storeMapper
+│   │  					├── cartMapper
+│   │  					├──	menuMapper
+│   │  					├── menuOptionMapper
+│   │  					├──	reviewMapper
+│   │  					├──	addressMapper
+│   │  					├── paymentMapper
+│   │  					├── alarmMapper
+│   │  					├── chattigroomMapper
+│   │  					└── messageMapper
 |   |
 │   │       ├── application.properties
 │   │       ├── mybatis-config.xml
