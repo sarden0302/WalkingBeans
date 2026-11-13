@@ -224,30 +224,40 @@ WalkingBeans
 
 ### 이성호 담당 기능
 
+#### 사용 기술
+| 구분 | 기술 | 활용 |
+|------|------|------|
+| 지도 | Kakao Maps JavaScript SDK | 스크립트 동적 로드(`autoload=false`), 커스텀 마커 · InfoWindow |
+| 위치 | Geolocation API | 라이더 현재 위치 조회, 3초 주기 갱신(`setInterval`) |
+| 거리 계산 | Haversine 공식 | 라이더 반경 10km 내 수락 가능 주문 필터링 |
+| 실시간 통신 | STOMP over WebSocket (`@stomp/stompjs`, Spring `@MessageMapping`) | 채팅방 · 채팅 목록 실시간 메시지 전송 |
+| SQL | MySQL CTE(`WITH`) + `ROW_NUMBER() OVER (PARTITION BY …)` | 채팅방별 마지막 메시지 조회 |
+| Backend | Spring Boot REST API, MyBatis | 주문 수락 · 상태 변경, 채팅방 생성, 수입 조회 |
+
 #### 🛵 라이더 웹페이지
-- **메인 페이지**
+- **메인 페이지** — `Kakao Maps` `Geolocation` `Haversine`
   - 라이더 현재 위치를 카카오맵에 표시
-  - '운행 중' 상태일 때 라이더 위치 반경 10km 내 수락 가능한 주문을 맵에 마커로 표시
+  - '운행 중' 상태일 때 Haversine 공식으로 라이더 위치 반경 10km 내 수락 가능한 주문을 계산해 맵에 마커로 표시
   - 주문 수락 시 해당 주문 Update 및 고객·매장과의 채팅방 Create
-- **배달 페이지**
+- **배달 페이지** — `Kakao Maps` `Geolocation` `setInterval` `useParams`
   - 라이더 현재 위치를 3초 단위로 갱신해 맵에 표시
   - 주문 상태를 확인해 '픽업 중' / '배달 중' 상태 표시
   - 매장과 고객 위치를 맵에 표시, 픽업 시 매장 마커 삭제 후 배달 중 상태로 변경
   - 배달 완료 시 배달 완료 페이지로 이동
   - 해당 주문에 대한 권한이 없으면 메인 페이지로 redirect
-- **배달 완료 페이지**
+- **배달 완료 페이지** — `useParams` `REST API`
   - 주문 정보 표시, 권한이 없으면 메인 페이지로 redirect
-- **수입 관리 페이지**
+- **수입 관리 페이지** — `REST API` `MyBatis`
   - 오늘 날짜 기준 이번 달 수입을 먼저 보여주고, 사용자 선택에 따라 월별 수입 조회
-- **주문 내역 페이지**
+- **주문 내역 페이지** — `REST API` `React Router`
   - 배달 중 / 배달 완료 여부에 따라 완료 시간순 정렬
   - 배달 중이면 배달 페이지로, 배달 완료면 배달 완료 페이지로 이동
 
 #### 💬 채팅 기능
-- **채팅 목록**
+- **채팅 목록** — `MySQL CTE` `ROW_NUMBER()` `STOMP`
   - 사용자의 `user_role`에 따라 채팅 목록을 분류하고 마지막 메시지 시간순으로 정렬 (예: 라이더는 고객 / 매장 목록을 나눠 정렬)
-  - `WITH` 절로 chattingroom · chattingmember · message · users를 조인해 상대방 기준 마지막 메시지를 표시
-- **채팅방**
+  - `WITH` 절로 chattingroom · chattingmember · message · users를 조인하고, `ROW_NUMBER() OVER (PARTITION BY room_id ORDER BY message_time DESC)`로 채팅방별 마지막 메시지만 추려 상대방 기준으로 표시
+- **채팅방** — `STOMP over WebSocket` `SimpMessagingTemplate`
   - 먼저 작성된 메시지부터 위에서 아래로 렌더링, 본인 메시지는 우측 / 상대 메시지는 좌측 표시
   - 채팅방 · 내 채팅 목록 · 상대 채팅 목록이 모두 WebSocket에 연결되어, 메시지 작성 시 연결된 모든 화면에 즉시 전송
 
